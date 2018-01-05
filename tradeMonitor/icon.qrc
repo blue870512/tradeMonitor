@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file alias="error">icon/error.ico</file>
+        <file alias="ok">icon/ok.ico</file>
+        <file alias="start">icon/start.ico</file>
+        <file alias="stop">icon/stop.ico</file>
+        <file alias="set">icon/set.ico</file>
+        <file alias="warning">icon/warning.ico</file>
+        <file alias="export">icon/export.ico</file>
+        <file alias="sqlset">icon/sqlset.ico</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,56 @@
+[2017-03-22 09:45:33] N1,N2,比例,说明
+[2017-03-22 09:45:33] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 09:45:43] N1,N2,比例,说明
+[2017-03-22 09:45:43] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 09:45:50] db_10.26.3.45_for_detail_closing: sql[select * from account.tZJDJXMMX where CXBZ!=2 and DJLB in(1, 2) and             
+FSRQ = to_char(sysdate, 'yyyymmdd') and YXRQ=to_char(sysdate, 'yyyymmdd') and             
+ROUND(TO_NUMBER(to_date(FSSJ,'hh24:mi:ss')-to_date('16:00:00','hh24:mi:ss'))*24*60*60)<0] is not correct!
+[2017-03-22 09:45:53] db_10.26.3.45_for_detail_closing: sql[select A.KHH, A.ZJZH, A.ZHYE, A.DJJE, B.DJJE, A.BDRQ from account.tZJZH A,             
+  (select zjzh,             
+    nvl( CASE WHEN greatest(max(DJJE), max(PREDJ))>=0 THEN greatest(max(DJJE),max(PREDJ))             
+    ELSE decode(sign(min(PRERQ)-to_char(sysdate, 'yyyymmdd')), 1, 0, greatest(max(DJJE),max(PREDJ))) END, 0) DJJE             
+  from             
+    (select ZJZH,DJJE,PRERQ,             
+      decode(sign(YXRQ-to_char(sysdate, 'yyyymmdd')), 1,PREDJ,DJJE) PREDJ from             
+      (select ZJZH, YXRQ, DJJE,             
+        first_value(YXRQ) over (partition by zjzh order by YXRQ rows between 1 preceding and 1 following) PRERQ,             
+      first_value(DJJE) over (partition by zjzh order by YXRQ rows between 1 preceding and 1 following) PREDJ,             
+      last_value(YXRQ) over (partition by zjzh order by YXRQ rows between 1 preceding and 1 following) LASTRQ             
+        from ( select ZJZH,             
+          SUM(sum(FSJE)) over(partition by zjzh order by yxrq range between unbounded preceding and current row) DJJE,             
+        YXRQ from account.tZJDJXMMX where  CXBZ<2 GROUP BY zjzh,yxrq ) )             
+          WHERE YXRQ>=to_char(sysdate, 'yyyymmdd') or YXRQ=LASTRQ )             
+    group by zjzh)             
+  B where A.ZJZH=B.ZJZH and A.DJJE<>B.DJJE and A.BDRQ=to_char(sysdate, 'yyyymmdd')             
+  union   select KHH, ZJZH, ZHYE, DJJE, 0, BDRQ from account.tZJZH A where A.DJJE>0 and             
+    A.ZJZH not in (select zjzh from account.tZJDJXMMX where CXBZ<2) and A.BDRQ=to_char(sysdate, 'yyyymmdd')] is not correct!
+[2017-03-22 09:45:53] N1,N2,比例,说明
+[2017-03-22 09:45:53] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 09:46:03] N1,N2,比例,说明
+[2017-03-22 09:46:03] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 10:02:51] N1,N2,比例,说明
+[2017-03-22 10:02:51] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 10:04:05] N1,N2,比例,说明
+[2017-03-22 10:04:05] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 10:07:03] N1,N2,比例,说明
+[2017-03-22 10:07:03] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 10:07:13] db_10.26.3.45_for_detail_closing: sql[select * from account.tZJDJXMMX where CXBZ!=2 and DJLB in(1, 2) and             
+FSRQ = to_char(sysdate, 'yyyymmdd') and YXRQ=to_char(sysdate, 'yyyymmdd') and             
+ROUND(TO_NUMBER(to_date(FSSJ,'hh24:mi:ss')-to_date('16:00:00','hh24:mi:ss'))*24*60*60)<0] is not correct!
+[2017-03-22 10:07:13] N1,N2,比例,说明
+[2017-03-22 10:07:13] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 10:47:15] N1,N2,比例,说明
+[2017-03-22 10:47:15] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 10:47:25] N1,N2,比例,说明
+[2017-03-22 10:47:25] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 10:47:35] N1,N2,比例,说明
+[2017-03-22 10:47:35] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 10:55:59] N1,N2,比例,说明
+[2017-03-22 10:55:59] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 10:56:09] N1,N2,比例,说明
+[2017-03-22 10:56:09] 472,552,0.86,交易时间待申报数据过多或没有申报数据
+[2017-03-22 10:56:09] db_10.26.3.45_for_detail_closing: sql[select * from account.tZJDJXMMX where CXBZ!=2 and DJLB in(1, 2) and             
+FSRQ = to_char(sysdate, 'yyyymmdd') and YXRQ=to_char(sysdate, 'yyyymmdd') and             
+ROUND(TO_NUMBER(to_date(FSSJ,'hh24:mi:ss')-to_date('16:00:00','hh24:mi:ss'))*24*60*60)<0] is not correct!
+[2017-03-22 10:56:19] N1,N2,比例,说明
+[2017-03-22 10:56:19] 472,552,0.86,交易时间待申报数据过多或没有申报数据
