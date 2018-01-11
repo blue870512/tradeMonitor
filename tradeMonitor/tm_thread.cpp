@@ -22,13 +22,28 @@ tm_thread::tm_thread(QObject * parent)
     str_cur_date = time.toString("yyyyMMdd");
     oracle_connect_status = TM_CONNECT_INIT;
 
+    client = new udp_client();
+    if(g_conf.is_udp_send)
+    {
+        client->set_server_address(g_conf.udp_server_ip);
+        client->set_server_port(g_conf.udp_server_port);
+    }
+
+    qRegisterMetaType< QByteArray >("QByteArray&");
+
     connect(this,SIGNAL(task_end()),this->parent(),SLOT(tm_thread_stop()));
     connect(this,SIGNAL(connect_end()),this->parent(),SLOT(tm_thread_connect_stop()));
+    connect(this,SIGNAL(send_data_sig(QByteArray&)),client,SLOT(send_data(QByteArray&)));
 }
 
 tm_thread::~tm_thread()
 {
     close_oracle();
+    if(client != NULL)
+    {
+        delete client;
+        client = NULL;
+    }
 }
 
 void tm_thread::run()
@@ -159,29 +174,91 @@ int tm_thread::query_sql(const QString &sql, int i)
         QList<QStandardItem*> lst_item;
         QStandardItem *item1, *item2, *item3, *item4, *item5;
         QDateTime time = QDateTime::currentDateTime();
-        QString s = time.toString("[yyyy-MM-dd hh:mm:ss]");
+        QString time_str = time.toString("yyyy-MM-dd hh:mm:ss");
+        QString s = "[" + time_str + "]";
         QString tmp;
         QString dbname = g_conf.lst_db[j].get_dbName() + "@" + g_conf.lst_db[j].get_host();
         QString stat;
+        QList<QStringList> lst_ret;
+        int status;
 
-        int ret = g_conf.lst_db[j].query_sql(sql);
+        int ret = g_conf.lst_db[j].query_sql(sql, lst_ret);
 
-        if(ret == 0)
-        {
-            tmp = QString::number(TM_OK) + s;
-            stat = QString::number(TM_OK);
-        }
-        else if(ret == 1)
-        {
-            tmp = QString::number(TM_ERROR) + s;
-            stat = QString::number(TM_ERROR);
-            n++;
-        }
-        else
+
+        if(ret == -1)
         {
             tmp = QString::number(TM_UNKNOW) + s;
             stat = QString::number(TM_UNKNOW);
             n++;
+            status = 1;
+        }
+        else
+        {
+            if(lst_ret.size() == 1)
+            {
+                tmp = QString::number(TM_OK) + s;
+                stat = QString::number(TM_OK);
+                status = 0;
+            }
+            else
+            {
+                tmp = QString::number(TM_ERROR) + s;
+                stat = QString::number(TM_ERROR);
+                n++;
+                status = 1;
+            }
+        }
+
+        if(i<g_conf.lst_opening_sql.size() && g_conf.is_udp_send)
+        {
+            QByteArray data;
+            QJsonObject json, json_info;
+            QJsonArray json_msg;
+            QString name = "t" + QString::number(i+1);
+            json.insert("system", "JZJY");
+            json.insert("service", "tradeMonitor");
+            json.insert("timestamp", time_str);
+            json.insert("type", "checkstatus");
+            json.insert("name", name);
+
+            json_info.insert("status", status);
+            json_info.insert("db_srouce", dbname);
+
+            for(int vi=1; vi<lst_ret.size(); vi++)
+            {
+                QJsonObject json_key_index;
+                QMap<int, QString> &m = g_conf.lst_opening_key_index[i];
+                QMap<int, QString>::iterator it;
+                int msg_flag = -1;
+                for(it=m.begin(); it!=m.end(); it++)
+                {
+                    if(it.value() == "")
+                    {
+                        json_msg.append(lst_ret[vi][it.key()]);
+                        msg_flag = 0;
+                        break;
+                    }
+                    else
+                    {
+                        json_key_index.insert(it.value(), lst_ret[vi][it.key()]);
+                        msg_flag = 1;
+                    }
+                }
+                if(msg_flag == 1)
+                {
+                    json_msg.append(json_key_index);
+                }
+            }
+
+            json_info.insert("msg", json_msg);
+            json.insert("info", json_info);
+
+            QJsonDocument document;
+            document.setObject(json);
+            data =document.toJson(QJsonDocument::Compact);
+            //data = tmp.toUtf8();
+            //client->send_data(data);
+            emit send_data_sig(data);
         }
 
         item1 = new QStandardItem(tmp);

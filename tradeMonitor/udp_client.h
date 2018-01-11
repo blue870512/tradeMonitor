@@ -4,6 +4,9 @@
 #include <QObject>
 #include <QtNetwork>
 
+#define UUID_LEN 16
+#define FRAGMENT_LEN 512
+
 class udp_client : public QObject
 {
     Q_OBJECT
@@ -15,16 +18,18 @@ public:
     void set_server_address(QString &addr);
     void set_server_port(int p);
 
-    void send_data(QByteArray &data);
-
 signals:
 
 public slots:
+    void send_data(QByteArray &data);
 
 private:
     QUdpSocket *client;
     QHostAddress server;
     int port;
+
+    void send_data_by_fragment(QByteArray &data);
+    void generate_uuid(char * uuid, int len);
 };
 
 #endif // UDP_CLIENT_H

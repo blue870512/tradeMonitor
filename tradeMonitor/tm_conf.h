@@ -18,6 +18,7 @@ public:
     QList<db_handle> lst_db;
     QList<sql_info> lst_opening_sql;
     QList<sql_info> lst_closing_sql;
+    QList<QMap<int, QString> > lst_opening_key_index;
     int n_interval;
     QString str_sql_file;
     QString str_open;
@@ -29,6 +30,7 @@ public:
 
 private:
     void listDom(QDomElement& docElem);
+    bool is_digit(QString s);
 };
 
 #endif // TM_CONF_H

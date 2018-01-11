@@ -228,6 +228,7 @@ void tm_conf::listDom(QDomElement& docElem)
 {
     QDomNode node = docElem.firstChild();
     QString s1, s2;
+    int i;
 
     //if(node.toElement().isNull())
     while(!node.isNull())
@@ -235,10 +236,11 @@ void tm_conf::listDom(QDomElement& docElem)
         if(node.toElement().tagName() == "sql")
         {
             sql_info sql;
+            QMap<int, QString> key_index;
             QDomNode child = node.firstChild();
             while(!child.isNull())
             {
-                if(child.toElement().tagName() == "key")
+                if(child.toElement().tagName() == "note")
                 {
                     sql.intr = child.toElement().text();
                 }
@@ -252,11 +254,29 @@ void tm_conf::listDom(QDomElement& docElem)
                     xml_decode(s1, s2);
                     sql.sql = s2;
                 }
+                else if(child.toElement().tagName() == "keyindex")
+                {
+                    s1 = child.toElement().text();
+                    QStringList tmp_list = s1.split(',');
+                    for(i=0; i<tmp_list.size(); i++)
+                    {
+                        QStringList tmp_list2 = tmp_list[i].split(':');
+                        if(tmp_list2.size() == 1 && is_digit(tmp_list2[0]))
+                        {
+                            key_index[tmp_list2[0].toInt()] = "";
+                        }
+                        else if(tmp_list2.size() == 2 && is_digit(tmp_list2[1]))
+                        {
+                            key_index[tmp_list2[1].toInt()] = tmp_list2[0];
+                        }
+                    }
+                }
                 child = child.nextSibling();
             }
             if(sql.type == TM_OPENING)
             {
                 lst_opening_sql.append(sql);
+                lst_opening_key_index.append(key_index);
             }
             else if(sql.type == TM_CLOSING)
             {
@@ -265,6 +285,16 @@ void tm_conf::listDom(QDomElement& docElem)
             node = node.nextSibling();
         }
     }
+}
+
+bool tm_conf::is_digit(QString s)
+{
+    if(QString::number(s.toInt()) == s)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 /*

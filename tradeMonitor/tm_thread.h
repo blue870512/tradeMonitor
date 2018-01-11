@@ -10,6 +10,7 @@
 #include "info_table.h"
 #include "status_table.h"
 #include "db_handle.h"
+#include "udp_client.h"
 
 class tm_thread : public QThread
 {
@@ -42,6 +43,7 @@ protected:
 signals:
     void connect_end();
     void task_end();
+    void send_data_sig(QByteArray &data);
 
 private:
     int query_sql(const QString &sql, int i);
@@ -51,6 +53,7 @@ private:
     void idle();
     void init_stat_count();
 
+    udp_client *client;
     QMutex m_lock;
 
     QList<int> lst_total_count;

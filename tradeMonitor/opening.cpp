@@ -3,7 +3,7 @@
 #include "sqlsettings.h"
 #include "export_file.h"
 #include "global.h"
-#include "udp_client.h"
+//#include "udp_client.h"
 #include <windows.h>
 #include <QDebug>
 #include <QResizeEvent>
@@ -449,6 +449,7 @@ void opening::tm_thread_stop()
     QList<QList<QStandardItem*> > &lst_info = tm->get_lst_info();
     QList<QList<QStandardItem*> > &lst_stat = tm->get_lst_stat();
 
+    /*
     udp_client client;
     QByteArray data;
     if(g_conf.is_udp_send)
@@ -456,11 +457,13 @@ void opening::tm_thread_stop()
         client.set_server_address(g_conf.udp_server_ip);
         client.set_server_port(g_conf.udp_server_port);
     }
+    */
 
     for(i=0; i<lst_info.size(); i++)
     {
         tbl_info->add_row(lst_info[i]);
 
+        /*
         int db_index = lst_info[i][4]->text().toInt();
         if(db_index>=0 && g_conf.is_udp_send)
         {
@@ -491,6 +494,7 @@ void opening::tm_thread_stop()
             //data = tmp.toUtf8();
             client.send_data(data);
         }
+        */
     }
     lst_info.clear();
 
